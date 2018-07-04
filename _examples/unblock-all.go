@@ -8,14 +8,7 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %s\n", err)
-		os.Exit(1)
-	}
-}
-
-func run() error {
-	return rfkill.Each(func(ev rfkill.Event) error {
+	if err := rfkill.Each(func(ev rfkill.Event) error {
 		if ev.Soft == 0 {
 			return nil
 		}
@@ -25,5 +18,8 @@ func run() error {
 		}
 		fmt.Printf("unblocking: %s\n", name)
 		return rfkill.BlockByIdx(ev.Idx, false)
-	})
+	}); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %s\n", err)
+		os.Exit(1)
+	}
 }
