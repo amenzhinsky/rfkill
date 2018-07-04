@@ -2,6 +2,10 @@
 
 A golang client for [rfkill](https://github.com/torvalds/linux/blob/master/Documentation/rfkill.txt). It supports reading available rfkill devices, subscribing to events and blocking/unblocking devices.
 
+## Documentation
+
+Detailed API documentation can be found [here](https://godoc.org/github.com/goautomotive/rfkill).
+
 ## Usage
 
 ```go

@@ -1,6 +1,5 @@
-// This is a rfkill client library for golang, for more details see:
+// This is a rfkill client library for golang, for implementation details see:
 // https://github.com/torvalds/linux/blob/master/include/uapi/linux/rfkill.h
-
 package rfkill
 
 import (
@@ -45,18 +44,35 @@ func (op Op) String() string {
 	}
 }
 
-// Type of rfkill switch.
+// Type is type of rfkill switch.
 type Type uint8
 
 const (
+	// TypeAll toggles all switches, useless in this library.
 	TypeAll = iota
+
+	// TypeWLAN switch is on a 802.11 wireless network device.
 	TypeWLAN
+
+	// TypeBluetooth switch is on a bluetooth device.
 	TypeBluetooth
+
+	// TypeUWB switch is on a ultra wideband device.
 	TypeUWB
+
+	// TypeWiMAX switch is on a WiMAX device.
 	TypeWiMAX
+
+	// TypeWWAN switch is on a wireless WAN device.
 	TypeWWAN
+
+	// TypeGPS switch is on a GPS device.
 	TypeGPS
+
+	// TypeFM switch is on a FM radio device.
 	TypeFM
+
+	// TypeNFC switch is on an NFC device.
 	TypeNFC
 )
 
@@ -94,12 +110,21 @@ func NameByIdx(idx uint32) (string, error) {
 	return string(b), nil
 }
 
-// Event is a rfkill event.
+// Event is a rfkill event read from /dev/rfkill.
 type Event struct {
-	Idx  uint32
+	// Idx is device index.
+	Idx uint32
+
+	// Type of the event.
 	Type Type
-	Op   Op
+
+	// Op operation code.
+	Op Op
+
+	// Soft state.
 	Soft uint8
+
+	// Hard state.
 	Hard uint8
 }
 
@@ -133,6 +158,14 @@ func BlockByIdx(idx uint32, block bool) error {
 
 // Each iterates over all registered devices yielding them as OpAdd events.
 // If fn returns an error the function immediately propagates it.
+//
+// Example how to unblock all devices:
+//
+// 	if err := rfkill.Each(func(ev rfkill.Event) error {
+// 		return rfkill.BlockByIdx(ev.Idx, false)
+// 	}); err != nil {
+// 		return err
+// 	}
 func Each(fn func(ev Event) error) error {
 	w, err := Watch(OpAdd)
 	if err != nil {
@@ -156,7 +189,24 @@ func Each(fn func(ev Event) error) error {
 	}
 }
 
-// Watch watches the rfkill events, if ops present it works as a filter.
+// Watch monitors the rfkill events.
+//
+// If ops is not empty it acts as a filter, otherwise it delivers everything.
+//
+// Example:
+// 	w, err := rfkill.Watch()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer w.Close()
+//
+// 	for ev := range w.C() {
+// 		fmt.Printf("idx=%d type=%s soft=%t hard=%t",
+// 			ev.Idx, ev.Type, ev.Soft != 0, ev.Hard != 0)
+// 	}
+// 	if err = w.Err(); err != nil {
+// 		return err
+// 	}
 func Watch(ops ...Op) (*Watcher, error) {
 	f, err := open(os.O_RDONLY)
 	if err != nil {
@@ -225,7 +275,7 @@ func (w *Watcher) Err() error {
 	return w.err
 }
 
-// Close makes the watcher to stop.
+// Close makes the watcher to stop automatically closing the events stream channel.
 func (w *Watcher) Close() error {
 	return w.close(ErrClosed)
 }
