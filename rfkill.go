@@ -139,7 +139,10 @@ func Each(fn func(ev Event) error) error {
 
 	for {
 		select {
-		case ev := <-w.C():
+		case ev, ok := <-w.C():
+			if !ok {
+				return w.Err()
+			}
 			if err = fn(ev); err != nil {
 				return err
 			}
@@ -239,8 +242,11 @@ func (w *Watcher) close(err error) error {
 	return w.file.Close()
 }
 
+// not a constant for testing purposes.
+var controlFile = "/dev/rfkill"
+
 func open(flags int) (*os.File, error) {
-	f, err := os.OpenFile("/dev/rfkill", flags, 0644)
+	f, err := os.OpenFile(controlFile, flags, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, errors.New("rfkill: control device is missing")
