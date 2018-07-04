@@ -1,3 +1,6 @@
+// This is a rfkill client library for golang, for more details see:
+// https://github.com/torvalds/linux/blob/master/include/uapi/linux/rfkill.h
+
 package rfkill
 
 import (
