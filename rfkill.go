@@ -1,4 +1,8 @@
-// This is a rfkill client library for golang, for implementation details see:
+//+build linux
+
+// This is a rfkill client library for golang, works only on linux.
+//
+// For implementation details see:
 // https://github.com/torvalds/linux/blob/master/include/uapi/linux/rfkill.h
 package rfkill
 
