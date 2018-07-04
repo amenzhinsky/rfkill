@@ -106,9 +106,14 @@ func (typ Type) String() string {
 }
 
 // NameByIdx returns system name for the named device idx.
+//
+// The value is read from /sys/class/rfkill/rfkill{IDX}/name.
 func NameByIdx(idx uint32) (string, error) {
 	b, err := ioutil.ReadFile(fmt.Sprintf("/sys/class/rfkill/rfkill%d/name", idx))
 	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("rfkill: idx(%d) not found in sysfs", idx)
+		}
 		return "", err
 	}
 	return string(b), nil
@@ -293,8 +298,8 @@ func (w *Watcher) close(err error) error {
 
 	// golang abstracts nonblocking read in the runtime, the only
 	// way to work this around is set a read timeout from the past
+	_ = w.file.SetReadDeadline(time.Now())
 	w.err = err
-	w.file.SetReadDeadline(time.Now())
 	close(w.done)
 	return w.file.Close()
 }
