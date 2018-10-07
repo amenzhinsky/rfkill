@@ -4,7 +4,7 @@ A golang client for [rfkill](https://github.com/torvalds/linux/blob/master/Docum
 
 ## Documentation
 
-Detailed API documentation can be found [here](https://godoc.org/github.com/goautomotive/rfkill).
+Detailed API documentation can be found [here](https://godoc.org/github.com/amenzhinsky/rfkill).
 
 ## Usage
 
