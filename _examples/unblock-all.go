@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/goautomotive/rfkill"
+	"github.com/amenzhinsky/rfkill"
 )
 
 func main() {
